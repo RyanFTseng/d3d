@@ -1,5 +1,6 @@
 #include <Windows.h>
-
+#include <format>
+#include <sstream>
 
 //Custom Windows procedure for terminating when closing window
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -9,7 +10,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_CLOSE:			 //on window close
 		PostQuitMessage(69); //post exit code
 		break;
+
+	case WM_KEYDOWN:		//keystroke
+		if (wParam == 'F')
+		{
+			SetWindowText(hWnd, L"Respects");
+		}
+		break;
+	case WM_KEYUP:
+		if (wParam == 'F')
+		{
+			SetWindowText(hWnd, L"WAHWAH");
+		}
+		break;
+	case WM_CHAR:			//text input
+	{
+		static std::wstring title;
+		title.push_back((char)wParam);
+		SetWindowText(hWnd, title.c_str());
 	}
+		break;
+	case WM_LBUTTONDOWN:	//left mouse button
+	{
+		//change window title to mouse click coords
+		POINTS pt = MAKEPOINTS(lParam);
+		std::wostringstream oss;
+		oss << "(" << pt.x << "," << pt.y << ")";
+		SetWindowText(hWnd, oss.str().c_str());
+	}
+	break;
+	}
+	
+	
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
@@ -59,7 +91,7 @@ int CALLBACK WinMain(
 	BOOL gResult;
 	while (gResult = GetMessage(&msg, nullptr, 0, 0) > 0) //>0 if msg!= quit, ==0 if quit, ==-1 if error, (0, 0) = get all messages
 	{
-		TranslateMessage(&msg);	//process message
+		TranslateMessage(&msg);	//process message, posts WM_CHAR to msg queue if keydown detected
 		DispatchMessage(&msg);  //pass message to windowproc
 
 	}
