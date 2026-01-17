@@ -37,7 +37,7 @@ HINSTANCE Window::WindowClass::GetInstance() noexcept
 	return wndClass.hInst;
 }
 
-//window constructor using wi
+//window constructor using winapi
 Window::Window(int width, int height, const wchar_t* name) noexcept
 {
 	//calculate window size based on client region size
