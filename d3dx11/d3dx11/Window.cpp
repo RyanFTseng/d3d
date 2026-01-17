@@ -70,11 +70,12 @@ LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 	if (msg == WM_NCCREATE)
 	{
 		//Extract ptr to window class from creation data
-		const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
+		const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam); //extract data from lParam
 		Window* const pWnd = static_cast<Window*>(pCreate->lpCreateParams);
 		//set WinAPI-managed user data to store ptr to window class
 		SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
 		//set message proc to normal handler now that setup is finished
+		//pass message to HandleMsgThunk
 		SetWindowLongPtr(hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&Window::HandleMsgThunk));
 		//forward message to window class handler
 		return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
@@ -87,6 +88,7 @@ LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 
 //procdure function to pass pointer to message handler procedure function
 //(adapter from winapi to c++ function)
+//invokes handlemsg function with message
 LRESULT WINAPI Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
 	//retrieve ptr to window class from win32
